@@ -5,7 +5,7 @@ import socket
 import pickle
 import classes
 import codes
-
+import os
 # __________________________________________________________
 # GLOBAL VARIABLES
 USER = ""
@@ -52,7 +52,7 @@ def register_service(server):
             if input("> ") == 'y':
                 register_service(server)
 
-def download_services(server):
+def download_services(server): # poprawić size
     global USER
     filename= input("Filename: ")
     typ = input("Typ: ")
@@ -74,11 +74,49 @@ def download_services(server):
                     f.write(data)
                 f.close()
                 print("zapisano")
+
+
+def send_services(server):
+    global USER
+    print("SEND FILES")
+    filename = input("Filename: ")
+    typ = input("Typ: ")
+
+    isExist = os.path.exists(filename)
+    if isExist == False:
+        print("File not found")
+        return
+
+    x = input("Do you want your file to be public ? [yes/no]")
+    if x == "yes":
+        ispublic = True
+    else:
+        ispublic = False
+
+    size = os.stat(filename).st_size
+
+    data_send = classes.Send_file(filename, typ, USER, ispublic, size)
+    data = classes.Main("send_file", 3, data_send)
+    data_string = pickle.dumps(data)
+    s.sendall(data_string + CRLF)
+    data_obj = receive(server)
+
+    if data_obj.typ == "service_code":
+        if data_obj.content == 301:
+            with open(filename, 'rb') as f:
+                data = "a"  # żeby data nie była pusta na początku
+                while data:
+                    data = f.read(1)
+                    server.sendall((data))
+
+            print("\t\tCorrect send")
+            f.close()
 # ____________________________________________________________
 # Funkcje pomocnicze
 
-def username_check(username, server):
+def username_check(username, server): # hasło jeszce
     # Czy muszą to być klasy? Mati mówił, że to i tak te same rodzaje wiadomości :/
+    # nie mam pojęcia tak wydawało mi się że tak będzie najprościej
     data = classes.Main("username_check", len(username), username)
     data_string = pickle.dumps(data)
     s.sendall(data_string + CRLF)
@@ -135,6 +173,9 @@ try:
 
         elif cmd == 'download':
             download_services(s)
+
+        elif cmd == 'send':
+            send_services(s)
 
         else:
             print("Incorrect command")
