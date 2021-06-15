@@ -52,7 +52,28 @@ def register_service(server):
             if input("> ") == 'y':
                 register_service(server)
 
-
+def download_services(server):
+    global USER
+    filename= input("Filename: ")
+    typ = input("Typ: ")
+    data_download = classes.Download_file(filename,typ,USER)
+    data = classes.Main("download_file", 5, data_download)
+    data_string = pickle.dumps(data)
+    s.sendall(data_string + CRLF)
+    data_obj = receive(server)
+    if data_obj.typ == "service_code":
+        if data_obj.content == 301:
+            # plik będzie leciał normalnie bez żadnej ramki. to będzie 2 typ wiadmości
+            size = int(data_obj.length)
+            data_size = 0
+            with open(filename, 'wb') as f:
+                while data_size < size:
+                    data = server.recv(1)
+                    #print(data)
+                    data_size += 1
+                    f.write(data)
+                f.close()
+                print("zapisano")
 # ____________________________________________________________
 # Funkcje pomocnicze
 
@@ -77,6 +98,7 @@ def receive(server):  # odbiera od servera wiadomości i przekazuje do service_s
     data_obj = pickle.loads(data)  # ładowanie danych do struktur
     print(f'//I receive = {data_obj.typ} {data_obj.length} {data_obj.content}')  # wypisanie
     service_server(data_obj.typ, data_obj.content)
+    return data_obj
 
 
 def receive_service_code(server):  # zwraca kod, jezeli service_code
@@ -110,6 +132,9 @@ try:
 
         elif cmd == 'register':
             register_service(s)
+
+        elif cmd == 'download':
+            download_services(s)
 
         else:
             print("Incorrect command")
