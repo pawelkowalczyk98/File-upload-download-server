@@ -11,7 +11,7 @@ import os
 CRLF = b"\r\n\r\n"
 CODE_LEN = 3
 
-# Definicje klas protokołu
+
 
 set_user_login = set()  # loginy
 dic_user_pwd = {}  # hasla
@@ -19,7 +19,7 @@ set_logged_in = set()  # set zalogowanych; mozna dodac generowanie
 # rand liczby/portu ktora przypiszemy w mapie do usera dla bezpieczenstwa
 
 
-## Zapisywanie seta z loginami:
+ ##Zapisywanie seta z loginami:
 # with open('set_user_login.txt', 'wb') as f:
 #    pickle.dump(set_user_login, f)
 ## Odczytywanie seta:
@@ -32,10 +32,31 @@ set_logged_in = set()  # set zalogowanych; mozna dodac generowanie
 # with open("data.pkl", "rb") as f:
 #    dic_user_pwd = pickle.load(f)
 
-## Dodanie konta root z haslem toor
-set_user_login.add("root")
-dic_user_pwd["root"] = "toor"
 
+def add_user(username,password):
+    set_user_login.add(username)
+    dic_user_pwd[username] = password
+
+    with open('set_user_login.txt', 'wb') as f:     # Zapis loginów
+        pickle.dump(set_user_login, f)
+
+    with open("dic_user_pwd.pkl", "wb") as f:       # Zapis haseł
+        pickle.dump(dic_user_pwd, f)
+
+
+# serwer za przy każdym uruchomieniu wczytuje loginy i hasła
+
+with open('set_user_login.txt', 'rb') as f:         # odczyt loginów
+    set_user_login = pickle.load(f)
+print("Loginy:")
+print(set_user_login)
+
+with open("dic_user_pwd.pkl", "rb") as f:           # odczyt haseł
+    dic_user_pwd = pickle.load(f)
+print("Hasła:")
+print(dic_user_pwd)
+
+#add_user("root","toor") nie trzeba dodawać bo sobie wczyta z pliku
 
 # ___________________________________________________________
 # Uruchamianie odpowiednich funkcji
@@ -60,10 +81,12 @@ def service_client(function_type, content, client):
         print("\t download File")
         download_file(content.filename, content.typ, content.username, client)
 
+    if function_type == "send_file":
+        print("\t send File")
+        send_file(content.filename, content.typ, content.username, content.ispublic, content.size, client)
+
     # _______________________________________________________
 
-
-# fnkcje serwera
 
 """ 
 TU zdefiniowane są funkcionalności serwera 
@@ -80,14 +103,10 @@ def login_service(username, password):
     if username in set_user_login:
         # Czy hasło poprawne?
         if password == dic_user_pwd[username]:
-            # Czy już zalogowany?
-            if username in set_logged_in:
-                print("\t\tPrzelogowanie: " + username)
-                # Wyloguj starego i zaloguj nowego? Nowy port?
-            else:
-                set_logged_in.add(username)  # Dodanie do listy zalogowanych
-                print("\t\tZalogowano: " + username)
-                response_class = classes.Main("service_code", CODE_LEN, 101)
+
+            set_logged_in.add(username)  # Dodanie do listy zalogowanych
+            print("\t\tZalogowano: " + username)
+            response_class = classes.Main("service_code", CODE_LEN, 101)
         else:
             print("\t\tBłędne hasło dla: " + username)
             response_class = classes.Main("service_code", CODE_LEN, 201)
@@ -95,10 +114,8 @@ def login_service(username, password):
         print("\t\tNieistniejący użytkownik: " + username)
         response_class = classes.Main("service_code", CODE_LEN, 202)
 
-    # Oznaczyć że username został zalogowany.
     response_object = pickle.dumps(response_class)
     client.sendall(response_object + CRLF)
-
 
 def logout_service(username):
     print("\t\tTu odbywa się wylogowywanie z serwera")
@@ -109,9 +126,9 @@ def logout_service(username):
         response_class = classes.Main("service_code", CODE_LEN, 102)
         # Dodać jakieś rozłączenie klienta? np. if 102 then cośtam
 
+    # wysłać komunikat że ok
     response_object = pickle.dumps(response_class)
     client.sendall(response_object + CRLF)
-    # wysłać komunikat że ok, albo że się nie powiodło
 
 
 def username_check_service(username):
@@ -119,8 +136,9 @@ def username_check_service(username):
     if username in set_user_login:
         response_class = classes.Main("service_code", CODE_LEN, 203)
     else:
+        # hasło potrzebne do rejstracji
+        #add_user(username,password)
         response_class = classes.Main("service_code", CODE_LEN, 103)
-
     response_object = pickle.dumps(response_class)
     client.sendall(response_object + CRLF)
 
@@ -155,6 +173,21 @@ def download_file(filename,typ,username,client):
     print("\t\tCorrect send")
     f.close()
 
+def send_file(filename,typ,username,ispublic,size, client):
+    print("\t\t zaraz bede zpisywał plik ")
+    response_class = classes.Main("service_code", CODE_LEN , 301)
+    response_object = pickle.dumps(response_class)
+    client.sendall(response_object + CRLF)
+    data_size = 0
+    path="server/"+filename
+    with open(path, 'wb') as f:
+        while data_size < size:
+            data = client.recv(1)
+            #print(data)
+            data_size += 1
+            f.write(data)
+        f.close()
+        print("zapisano")
 
 # __________________________MAIN_LOOP____________________________
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
