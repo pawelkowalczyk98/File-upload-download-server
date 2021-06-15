@@ -29,7 +29,14 @@ class Ls:
         self.private = private
         self.public = public
 
-    # _______________________________________________
+class Download_file:
+    def __init__(self, filename, typ, username):
+        self.filename = filename
+        self.typ = typ
+        self.username = username
+
+
+# _______________________________________________
 # > Może zawsze przy wysyłaniu klasy dodać do niej jakiegoś inta = 0,
 # który będzie inkrementowany przy każdym wysłaniu klasy przez klienta o 1
 # (zabezpieczenie przed podpięciem? Mati podawał taki przykład, mogę dodać)
