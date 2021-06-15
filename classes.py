@@ -35,6 +35,14 @@ class Download_file:
         self.typ = typ
         self.username = username
 
+class Send_file:
+    def __init__(self, filename, typ, username, ispublic, size):
+        self.filename = filename
+        self.typ = typ
+        self.username = username
+        self.ispublic = ispublic
+        self.size = size
+
 
 # _______________________________________________
 # > Może zawsze przy wysyłaniu klasy dodać do niej jakiegoś inta = 0,
