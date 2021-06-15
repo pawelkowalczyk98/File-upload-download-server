@@ -4,6 +4,7 @@
 import socket
 import pickle
 import classes
+import os
 
 # __________________________________________________________
 # GLOBAL VARIABLES
@@ -39,7 +40,7 @@ dic_user_pwd["root"] = "toor"
 # ___________________________________________________________
 # Uruchamianie odpowiednich funkcji
 
-def service_client(function_type, content):
+def service_client(function_type, content, client):
     """Funkcja na podstawie typu
     odpala odpowiednią funkcję"""
 
@@ -54,6 +55,11 @@ def service_client(function_type, content):
     if function_type == 'username_check':
         print("\tusername checking..")
         username_check_service(content)
+
+    if function_type == "download_file":
+        print("\t download File")
+        download_file(content.filename, content.typ, content.username, client)
+
     # _______________________________________________________
 
 
@@ -118,6 +124,37 @@ def username_check_service(username):
     response_object = pickle.dumps(response_class)
     client.sendall(response_object + CRLF)
 
+def download_file(filename,typ,username,client):
+    print("\t\t download file")
+    path="server/"+filename
+    # czy plik istnieje
+    isExist = os.path.exists(path)
+    if isExist == False:
+        response_class = classes.Main("service_code",CODE_LEN, 401)
+        response_object = pickle.dumps(response_class)
+        client.sendall(response_object + CRLF)
+        print("Plik nie istnieje")
+        return
+    # czy jest publiczy lub czy username jest właścielem
+        # jeśli nie odpowieni kod błęd jeśli tak to wysyłanie:
+
+    print("\t\tWysyłam plik")
+
+    size = os.stat(path).st_size
+    response_class = classes.Main("service_code", size, 301)
+    response_object = pickle.dumps(response_class)
+    client.sendall(response_object + CRLF)
+    # wyślij plik
+
+    with open(path, 'rb') as f:
+        data="a" # żeby data nie była pusta na początku
+        while data:
+            data = f.read(1)
+            client.sendall((data))
+
+    print("\t\tCorrect send")
+    f.close()
+
 
 # __________________________MAIN_LOOP____________________________
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -138,7 +175,7 @@ while True:
         data_obj = pickle.loads(data)  # ładowanie danych do struktur
         print(f'I receive = {data_obj.typ} {data_obj.length}')  # wypisanie
 
-        service_client(data_obj.typ, data_obj.content)
+        service_client(data_obj.typ, data_obj.content, client)
 
     client.close()
 
