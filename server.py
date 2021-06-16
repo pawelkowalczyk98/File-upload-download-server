@@ -5,12 +5,13 @@ import socket
 import pickle
 import classes
 import os
+import ssl
+from _thread import start_new_thread
 
 # __________________________________________________________
 # GLOBAL VARIABLES
 CRLF = b"\r\n\r\n"
 CODE_LEN = 3
-
 
 
 set_user_login = set()  # loginy
@@ -19,21 +20,27 @@ set_logged_in = set()  # set zalogowanych; mozna dodac generowanie
 # rand liczby/portu ktora przypiszemy w mapie do usera dla bezpieczenstwa
 
 
- ##Zapisywanie seta z loginami:
-# with open('set_user_login.txt', 'wb') as f:
-#    pickle.dump(set_user_login, f)
-## Odczytywanie seta:
-# with open('set_user_login.txt', 'rb') as f:
-#    user_data = pickle.load(f)
-## Zapisywanie dict z haslami:
-# with open("data.pkl", "wb") as f:
-#    pickle.dump(dic_user_pwd, f)
-## Odczytywanie dict:
-# with open("data.pkl", "rb") as f:
-#    dic_user_pwd = pickle.load(f)
+def create_ssl_context():
+    cont = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    cont.verify_mode = ssl.CERT_REQUIRED
+    cont.load_cert_chain(certfile='server.crt', keyfile='server.key')
+    cont.load_verify_locations(cafile='client.crt')
+    return cont
 
 
-def add_user(username,password):
+def one_client(client):
+    data = b''
+    while b"\r\n\r\n" not in data:
+        data += client.recv(1)
+        # print(data)
+
+    data_obj = pickle.loads(data)  # ładowanie danych do struktur
+    print(f'I receive = {data_obj.typ} {data_obj.length}')  # wypisanie
+    service_client(data_obj.typ, data_obj.content, client)
+    client.close()
+
+
+def add_user(username, password):
     set_user_login.add(username)
     dic_user_pwd[username] = password
 
@@ -56,7 +63,6 @@ with open("dic_user_pwd.pkl", "rb") as f:           # odczyt haseł
 print("Hasła:")
 print(dic_user_pwd)
 
-#add_user("root","toor") nie trzeba dodawać bo sobie wczyta z pliku
 
 # ___________________________________________________________
 # Uruchamianie odpowiednich funkcji
@@ -117,6 +123,7 @@ def login_service(username, password):
     response_object = pickle.dumps(response_class)
     client.sendall(response_object + CRLF)
 
+
 def logout_service(username):
     print("\t\tTu odbywa się wylogowywanie z serwera")
     print("\t\tUsername: " + username)
@@ -141,6 +148,7 @@ def username_check_service(username):
         response_class = classes.Main("service_code", CODE_LEN, 103)
     response_object = pickle.dumps(response_class)
     client.sendall(response_object + CRLF)
+
 
 def download_file(filename,typ,username,client):
     print("\t\t download file")
@@ -173,6 +181,7 @@ def download_file(filename,typ,username,client):
     print("\t\tCorrect send")
     f.close()
 
+
 def send_file(filename,typ,username,ispublic,size, client):
     print("\t\t zaraz bede zpisywał plik ")
     response_class = classes.Main("service_code", CODE_LEN , 301)
@@ -189,29 +198,20 @@ def send_file(filename,typ,username,ispublic,size, client):
         f.close()
         print("zapisano")
 
+
 # __________________________MAIN_LOOP____________________________
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(("localhost", 1769))
-s.listen(5)
+context = create_ssl_context()
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
+    sock.bind(("localhost", 1769))
+    sock.listen(5)
+    with context.wrap_socket(sock, server_side=True) as s:
+        while True:
+            try:
+                client, address = s.accept()
+                print("Connected: " + address[0])
+                start_new_thread(one_client, (client,))
 
-while True:
-    client, addr = s.accept()
-    print("Connected: " + addr[0])
-    while True:
-        # Tą pętle trzeba wsadzić do funkcji i odpalać asyncio
-        # odbieranie danych
-        data = b''
-        while b"\r\n\r\n" not in data:
-            data += client.recv(1)
-            # print(data)
-
-        data_obj = pickle.loads(data)  # ładowanie danych do struktur
-        print(f'I receive = {data_obj.typ} {data_obj.length}')  # wypisanie
-
-        service_client(data_obj.typ, data_obj.content, client)
-
-    client.close()
-
-s.close()
+            except socket.error:
+                s.close()
 
 # ______________________________________
