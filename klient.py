@@ -6,11 +6,14 @@ import pickle
 import classes
 import codes
 import ssl
+from getpass import getpass
 
 # __________________________________________________________
 # GLOBAL VARIABLES
 USER = ""
 CRLF = b"\r\n\r\n"
+# Map SESSION_ID with USER at server site, for better safety
+SESSION_ID = 0
 # (Service action counter for safety - TO_DO)
 SERVICE_CNT = 0
 
@@ -43,25 +46,42 @@ def logout_service(server):
 def register_service(server):
     global USER
     USER = input("Please enter desired username (or leave empty to cancel operation): ")
-    # Must check if user contains only a-z and A-Z chars!
+    # Remove whitespaces
+    USER.strip()
     if USER == '':
         print("Operation cancelled.")
     else:
         code = username_check(USER, server)
         if code == 103:
             print(codes.dic_service_code[code])
-            # create user
+            pw = getpass("Enter password: ")
+            if getpass("Repeat password: ") != pw:
+                print(codes.dic_service_code[201])
+            else:
+                print("Encoded password: " + pw)
+                register_user_service(USER, pw, server)
+
         elif code == 203:
-            print(codes.dic_service_code[code] + "\nTry again? (y/n)")
-            if input("> ") == 'y':
-                register_service(server)
+            print(codes.dic_service_code[code])
+
+
+def register_user_service(user, pw, server):
+    data_register = classes.Register(user, pw)
+    data = classes.Main("register", len(data_register), data_register)
+    data_string = pickle.dumps(data)
+    s.sendall(data_string + CRLF)
+    receive(server)
+
+
+def exit_service(server):
+    data = classes.Main("exit", len(USER), USER)
+    data_string = pickle.dumps(data)
+    s.sendall(data_string + CRLF)
 
 
 # ____________________________________________________________
 # Funkcje pomocnicze
-
 def username_check(username, server):
-    # Czy muszą to być klasy? Mati mówił, że to i tak te same rodzaje wiadomości :/
     data = classes.Main("username_check", len(username), username)
     data_string = pickle.dumps(data)
     s.sendall(data_string + CRLF)
@@ -106,6 +126,7 @@ try:
             cmd = input('> ')
 
             if cmd == 'exit':
+                exit_service(s)
                 break
 
             elif cmd == 'help':

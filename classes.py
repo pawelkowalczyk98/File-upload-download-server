@@ -23,17 +23,28 @@ class Logout:
         return len(self.username)
 
 
+class Register:
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+    def __len__(self):
+        return len(self.username) + len(self.password)
+
+
 class Ls:
     def __init__(self, username, private, public):
         self.username = username
         self.private = private
         self.public = public
 
+
 class Download_file:
     def __init__(self, filename, typ, username):
         self.filename = filename
         self.typ = typ
         self.username = username
+
 
 class Send_file:
     def __init__(self, filename, typ, username, ispublic, size):
