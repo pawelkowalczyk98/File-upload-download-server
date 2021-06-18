@@ -17,7 +17,10 @@ CODE_LEN = 3
 set_user_login = set()  # loginy
 dic_user_pwd = {}  # hasla
 set_logged_in = set()  # set zalogowanych; mozna dodac generowanie
-dic_user_session = {}
+dic_user_session = {
+    # (session_id == 0) ==> public user, no account
+    0: "public"
+}
 
 
 # rand liczby/portu ktora przypiszemy w mapie do usera dla bezpieczenstwa
@@ -84,7 +87,7 @@ def service_client(function_type, content, client):
 
     if function_type == 'logout':
         print("\tlogout")
-        logout_service(content.username)
+        logout_service(content.username, content.sid)
 
     if function_type == 'username_check':
         print("\tusername checking..")
@@ -119,10 +122,17 @@ def login_service(username, password):
     if username in set_user_login:
         # Czy hasło poprawne?
         if password == dic_user_pwd[username]:
-
+            # Są 2 opcje, które mogę dodać, jeżeli user już jest zalogowany
+            # 1. Nie pozwalam na nowe zalogowanie usera, dopóki się nie wyloguje
+            # 2. Dodaję extra dic (odwrotność user_sessions), i wywalam poprzednika, żeby zalogować nowego
             set_logged_in.add(username)  # Dodanie do listy zalogowanych
+            session_id = random.randint(1, 999999)
+            dic_user_session[session_id] = username
             print("\t\tZalogowano: " + username)
             response_class = classes.Main("service_code", CODE_LEN, 101)
+            response_object = pickle.dumps(response_class)
+            client.sendall(response_object + CRLF)
+            response_class = session_id
         else:
             print("\t\tBłędne hasło dla: " + username)
             response_class = classes.Main("service_code", CODE_LEN, 201)
@@ -134,14 +144,22 @@ def login_service(username, password):
     client.sendall(response_object + CRLF)
 
 
-def logout_service(username):
+def logout_service(username, sid):
     print("\t\tTu odbywa się wylogowywanie z serwera")
     print("\t\tUsername: " + username)
+    sid = int(sid)
     if username in set_logged_in:
-        set_logged_in.remove(username)
-        print("\t\tWylogowano: " + username)
-        response_class = classes.Main("service_code", CODE_LEN, 102)
-        # Dodać jakieś rozłączenie klienta? np. if 102 then cośtam
+        if dic_user_session[sid] == username:
+            set_logged_in.remove(username)
+            dic_user_session.pop(sid)
+
+            print("\t\tWylogowano: " + username)
+            response_class = classes.Main("service_code", CODE_LEN, 102)
+            # Dodać jakieś rozłączenie klienta? np. if 102 then cośtam
+        else:
+            response_class = classes.Main("service_code", CODE_LEN, 204)
+    else:
+        response_class = classes.Main("service_code", CODE_LEN, 205)
 
     # wysłać komunikat że ok
     response_object = pickle.dumps(response_class)
@@ -204,6 +222,10 @@ def send_file(filename, typ, username, ispublic, size, client):
     client.sendall(response_object + CRLF)
     data_size = 0
     path = "server/" + filename
+    # Tworzy odpowiedni katalog użytkownika (sprawdzić czy tylko u mnie na linuxie nie działa):
+    # path = "/server/" + username + "/" + filename
+    # os.makedirs(os.path.dirname(path), exist_ok=True)
+
     with open(path, 'wb') as f:
         while data_size < size:
             data = client.recv(1)

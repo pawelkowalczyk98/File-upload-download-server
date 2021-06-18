@@ -11,6 +11,10 @@ dic_service_code = {
     201: "Incorrect password",
     202: "Incorrect username",
     203: "Username unavailable",
+    204: "Unauthorized logout!",
+    205: "User not logged in!",
+    206: "Operation cancelled. Illegal username.",
+    207: "Login error.",
 
     # FILE
     301: "Successfully. Start sending file. ",

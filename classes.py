@@ -16,11 +16,12 @@ class Login:
 
 
 class Logout:
-    def __init__(self, username):
+    def __init__(self, username, sid):
         self.username = username
+        self.sid = str(sid)
 
     def __len__(self):
-        return len(self.username)
+        return len(self.username) + len(self.sid)
 
 
 class Register:
