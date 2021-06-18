@@ -1,0 +1,243 @@
+2021-06-18 20:02:26.544700	Start server
+2021-06-18 20:02:26.545699	Read login and pass from file
+2021-06-18 20:02:26.546699	Read dictionary from file
+2021-06-18 20:02:26.549700	create ssl contex
+2021-06-18 20:02:30.207667	127.0.0.1Connected
+2021-06-18 20:03:38.024516	127.0.0.1Connected
+2021-06-18 20:03:56.914313	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:03:56.915317	127.0.0.1	User ls file. 	 username: publicowner file: no public file: no
+2021-06-18 20:03:56.915317	127.0.0.1	User not logged in, 	 username: public owner file: no public file: no
+2021-06-18 20:04:02.563146	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:04:02.563146	127.0.0.1	User ls file. 	 username: publicowner file: True public file: True
+2021-06-18 20:04:02.564147	127.0.0.1	User not logged in, 	 username: public owner file: True public file: True
+2021-06-18 20:04:56.929976	127.0.0.1	I receive = login	len: 8
+2021-06-18 20:04:56.930975	127.0.0.1	Try login. 	Username: root password: toor
+2021-06-18 20:04:56.930975	127.0.0.1	Invalid Username
+2021-06-18 20:05:08.801327	127.0.0.1	I receive = login	len: 8
+2021-06-18 20:05:08.802327	127.0.0.1	Try login. 	Username: root password: toor
+2021-06-18 20:05:08.802327	127.0.0.1	Invalid Username
+2021-06-18 20:05:26.905717	127.0.0.1	I receive = login	len: 8
+2021-06-18 20:05:26.906716	127.0.0.1	Try login. 	Username: root password: toor
+2021-06-18 20:05:26.906716	127.0.0.1	Invalid Username
+2021-06-18 20:05:32.921326	127.0.0.1	I receive = login	len: 9
+2021-06-18 20:05:32.922325	127.0.0.1	Try login. 	Username: root1 password: toor
+2021-06-18 20:05:32.922325	127.0.0.1	Invalid Username
+2021-06-18 20:08:13.959955	127.0.0.1	I receive = login	len: 8
+2021-06-18 20:08:13.960961	127.0.0.1	Try login. 	Username: root password: toor
+2021-06-18 20:08:13.960961	127.0.0.1	Invalid Username
+2021-06-18 20:09:01.208363	Start server
+2021-06-18 20:09:01.209362	Read login and pass from file
+2021-06-18 20:09:01.209362	Read dictionary from file
+2021-06-18 20:09:01.212360	create ssl contex
+2021-06-18 20:09:05.404040	127.0.0.1 Connected
+2021-06-18 20:09:22.210457	127.0.0.1	I receive = login	len: 8
+2021-06-18 20:09:22.211457	127.0.0.1	Try login. 	Username: root password: toor
+2021-06-18 20:09:22.211457	127.0.0.1	Invalid Username
+2021-06-18 20:10:42.957913	Start server
+2021-06-18 20:10:42.958914	Read login and pass from file
+2021-06-18 20:10:42.959913	Read dictionary from file
+2021-06-18 20:10:42.963912	create ssl contex
+2021-06-18 20:10:55.304902	127.0.0.1 Connected
+2021-06-18 20:11:01.026505	127.0.0.1	I receive = login	len: 8
+2021-06-18 20:11:01.026505	127.0.0.1	Try login. 	Username: root password: toor
+2021-06-18 20:11:01.027503	127.0.0.1	Login sucesfull. 	Session_id: 801491
+2021-06-18 20:11:06.786499	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:11:06.786499	127.0.0.1	User ls file. 	 username: rootowner file: True public file: True
+2021-06-18 20:11:06.787498	127.0.0.1	Server sent list of the owner files. 	 username: root owner file: Truepublic file: True
+2021-06-18 20:11:06.787498	127.0.0.1	Server sent list of the public files. 	 username: root owner file: True public file: True
+2021-06-18 20:11:11.010679	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:11:11.010679	127.0.0.1	User ls file. 	 username: rootowner file: no public file: no
+2021-06-18 20:13:58.483765	127.0.0.1 Connected
+2021-06-18 20:14:03.993312	Start server
+2021-06-18 20:14:03.994310	Read login and pass from file
+2021-06-18 20:14:03.994310	Read dictionary from file
+2021-06-18 20:14:03.998309	create ssl contex
+2021-06-18 20:14:07.078452	127.0.0.1 Connected
+2021-06-18 20:14:17.794491	127.0.0.1	I receive = login	len: 9
+2021-06-18 20:14:17.795490	127.0.0.1	Try login. 	Username: root1 password: toor
+2021-06-18 20:14:17.795490	127.0.0.1	Login sucesfull. 	Session_id: 521855
+2021-06-18 20:14:21.138242	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:14:21.138242	127.0.0.1	User ls file. 	 username: root1owner file: no public file: no
+2021-06-18 20:14:21.139242	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: no public file: no
+2021-06-18 20:14:34.746294	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:14:34.746294	127.0.0.1	User ls file. 	 username: root1owner file: True public file: no
+2021-06-18 20:14:34.747292	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: no
+2021-06-18 20:14:34.747292	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: no
+2021-06-18 20:14:55.690085	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:14:55.691089	127.0.0.1	User ls file. 	 username: root1owner file: no public file: True
+2021-06-18 20:14:55.691089	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: no public file: True
+2021-06-18 20:15:13.330519	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:15:13.330519	127.0.0.1	User ls file. 	 username: root1owner file: root public file: True
+2021-06-18 20:15:13.331518	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: root public file: True
+2021-06-18 20:15:20.826065	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:15:20.827063	127.0.0.1	User ls file. 	 username: root1owner file: True public file: True
+2021-06-18 20:15:20.827063	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: True
+2021-06-18 20:15:20.828063	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: True
+2021-06-18 20:15:31.059416	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:15:31.060418	127.0.0.1	User ls file. 	 username: root1owner file: True public file: no
+2021-06-18 20:15:31.060418	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: no
+2021-06-18 20:15:31.061415	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: no
+2021-06-18 20:15:37.106355	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:15:37.106355	127.0.0.1	User ls file. 	 username: root1owner file: no public file: True
+2021-06-18 20:15:37.107355	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: no public file: True
+2021-06-18 20:16:57.290316	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:16:57.290316	127.0.0.1	User ls file. 	 username: root1owner file: True public file: True
+2021-06-18 20:16:57.291317	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: True
+2021-06-18 20:16:57.291317	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: True
+2021-06-18 20:18:54.926285	127.0.0.1 Connected
+2021-06-18 20:19:00.730125	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:19:00.730125	127.0.0.1	User ls file. 	 username: publicowner file: True public file: True
+2021-06-18 20:19:00.731126	127.0.0.1	User not logged in, 	 username: public owner file: True public file: True
+2021-06-18 20:19:09.385957	127.0.0.1	I receive = login	len: 9
+2021-06-18 20:19:09.385957	127.0.0.1	Try login. 	Username: root1 password: toor
+2021-06-18 20:19:09.386957	127.0.0.1	Login sucesfull. 	Session_id: 946833
+2021-06-18 20:19:16.033430	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:19:16.034430	127.0.0.1	User ls file. 	 username: root1owner file: True public file: True
+2021-06-18 20:19:16.034430	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: True
+2021-06-18 20:19:16.035429	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: True
+2021-06-18 20:22:51.450217	Start server
+2021-06-18 20:22:51.450217	Read login and pass from file
+2021-06-18 20:22:51.451217	Read dictionary from file
+2021-06-18 20:22:51.454214	create ssl contex
+2021-06-18 20:22:57.451239	127.0.0.1 Connected
+2021-06-18 20:23:07.049741	127.0.0.1	I receive = login	len: 9
+2021-06-18 20:23:07.049741	127.0.0.1	Try login. 	Username: root1 password: toor
+2021-06-18 20:23:07.050741	127.0.0.1	Login sucesfull. 	Session_id: 71988
+2021-06-18 20:23:12.257488	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:23:12.258488	127.0.0.1	User ls file. 	 username: root1owner file: True public file: True
+2021-06-18 20:23:12.258488	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: True
+2021-06-18 20:23:12.259488	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: True
+2021-06-18 20:23:26.026176	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:23:26.026176	127.0.0.1	User ls file. 	 username: root1owner file: True public file: no
+2021-06-18 20:23:26.027174	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: no
+2021-06-18 20:23:26.027174	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: no
+2021-06-18 20:23:40.641708	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:23:40.642706	127.0.0.1	User ls file. 	 username: root1owner file: no public file: True
+2021-06-18 20:23:40.642706	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: no public file: True
+2021-06-18 20:28:53.996267	Start server
+2021-06-18 20:28:53.996267	Read login and pass from file
+2021-06-18 20:28:53.997266	Read dictionary from file
+2021-06-18 20:28:54.002267	create ssl contex
+2021-06-18 20:29:04.523783	127.0.0.1 Connected
+2021-06-18 20:29:11.629918	127.0.0.1	I receive = login	len: 9
+2021-06-18 20:29:11.630921	127.0.0.1	Try login. 	Username: root1 password: toor
+2021-06-18 20:29:11.631921	127.0.0.1	Login sucesfull. 	Session_id: 466427
+2021-06-18 20:29:16.494581	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:29:16.495586	127.0.0.1	User ls file. 	 username: root1owner file: True public file: True
+2021-06-18 20:29:16.495586	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: True
+2021-06-18 20:29:16.496584	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: True
+2021-06-18 20:29:35.972784	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:29:35.972784	127.0.0.1	User ls file. 	 username: root1owner file: False public file: False
+2021-06-18 20:29:35.973784	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: False public file: False
+2021-06-18 20:29:46.918661	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:29:46.919662	127.0.0.1	User ls file. 	 username: root1owner file: True public file: False
+2021-06-18 20:29:46.919662	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: False
+2021-06-18 20:29:46.920661	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: False
+2021-06-18 20:30:00.025620	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:30:00.025620	127.0.0.1	User ls file. 	 username: root1owner file: False public file: True
+2021-06-18 20:30:00.026622	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: False public file: True
+2021-06-18 20:33:44.845865	Start server
+2021-06-18 20:33:44.846865	Read login and pass from file
+2021-06-18 20:33:44.846865	Read dictionary from file
+2021-06-18 20:33:44.849865	create ssl contex
+2021-06-18 20:33:47.573644	127.0.0.1 Connected
+2021-06-18 20:33:56.821717	127.0.0.1	I receive = login	len: 10
+2021-06-18 20:33:56.822710	127.0.0.1	Try login. 	Username: root1 password: toor1
+2021-06-18 20:33:56.822710	127.0.0.1	Bad password
+2021-06-18 20:34:08.988332	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:34:08.989335	127.0.0.1	User ls file. 	 username: root1owner file: True public file: False
+2021-06-18 20:34:08.990336	127.0.0.1	User not logged in, 	 username: root1 owner file: True public file: False
+2021-06-18 20:34:21.152127	127.0.0.1	I receive = login	len: 9
+2021-06-18 20:34:21.152127	127.0.0.1	Try login. 	Username: root1 password: toor
+2021-06-18 20:34:21.153128	127.0.0.1	Login sucesfull. 	Session_id: 23600
+2021-06-18 20:34:26.769251	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:34:26.770251	127.0.0.1	User ls file. 	 username: root1owner file: True public file: False
+2021-06-18 20:34:26.771250	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: False
+2021-06-18 20:34:26.771250	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: False
+2021-06-18 20:34:37.508168	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:34:37.508168	127.0.0.1	User ls file. 	 username: root1owner file: False public file: True
+2021-06-18 20:34:37.509169	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: False public file: True
+2021-06-18 20:35:16.045156	127.0.0.1 Connected
+2021-06-18 20:35:22.877624	127.0.0.1	I receive = login	len: 9
+2021-06-18 20:35:22.878628	127.0.0.1	Try login. 	Username: root1 password: toor
+2021-06-18 20:35:22.879629	127.0.0.1	Login sucesfull. 	Session_id: 290339
+2021-06-18 20:35:28.567072	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:35:28.568076	127.0.0.1	User ls file. 	 username: root1owner file: False public file: True
+2021-06-18 20:35:28.569077	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: False public file: True
+2021-06-18 20:35:59.774960	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:35:59.775960	127.0.0.1	User ls file. 	 username: root1owner file: True public file: True
+2021-06-18 20:35:59.775960	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: True
+2021-06-18 20:35:59.776961	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: True
+2021-06-18 20:36:12.818205	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:36:12.818205	127.0.0.1	User ls file. 	 username: root1owner file: True public file: False
+2021-06-18 20:36:12.819206	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: False
+2021-06-18 20:36:12.819206	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: False
+2021-06-18 20:36:22.403813	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:36:22.404819	127.0.0.1	User ls file. 	 username: root1owner file: True public file: True
+2021-06-18 20:36:22.405819	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: True
+2021-06-18 20:36:22.405819	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: True
+2021-06-18 20:37:54.469014	Start server
+2021-06-18 20:37:54.470014	Read login and pass from file
+2021-06-18 20:37:54.470014	Read dictionary from file
+2021-06-18 20:37:54.473014	create ssl contex
+2021-06-18 20:37:57.880856	127.0.0.1 Connected
+2021-06-18 20:38:19.752665	127.0.0.1	I receive = login	len: 9
+2021-06-18 20:38:19.752665	127.0.0.1	Try login. 	Username: root1 password: toor
+2021-06-18 20:38:19.753666	127.0.0.1	Login sucesfull. 	Session_id: 829564
+2021-06-18 20:38:25.297509	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:38:25.297509	127.0.0.1	User ls file. 	 username: root1owner file: False public file: False
+2021-06-18 20:38:25.298509	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: False public file: False
+2021-06-18 20:38:31.555221	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:38:31.555221	127.0.0.1	User ls file. 	 username: root1owner file: True public file: True
+2021-06-18 20:38:31.556222	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: True
+2021-06-18 20:38:31.556222	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: True
+2021-06-18 20:41:04.553312	Start server
+2021-06-18 20:41:04.554311	Read login and pass from file
+2021-06-18 20:41:04.554311	Read dictionary from file
+2021-06-18 20:41:04.557310	create ssl contex
+2021-06-18 20:41:06.878556	Start server
+2021-06-18 20:41:06.879555	Read login and pass from file
+2021-06-18 20:41:06.879555	Read dictionary from file
+2021-06-18 20:41:06.882555	create ssl contex
+2021-06-18 20:41:10.248987	127.0.0.1 Connected
+2021-06-18 20:41:15.825628	127.0.0.1	I receive = login	len: 9
+2021-06-18 20:41:15.826626	127.0.0.1	Try login. 	Username: root1 password: toor
+2021-06-18 20:41:15.826626	127.0.0.1	Login sucesfull. 	Session_id: 486479
+2021-06-18 20:41:21.779283	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:41:21.779283	127.0.0.1	User ls file. 	 username: root1 owner file: False public file: False
+2021-06-18 20:41:36.120733	Start server
+2021-06-18 20:41:36.120733	Read login and pass from file
+2021-06-18 20:41:36.121732	Read dictionary from file
+2021-06-18 20:41:36.124731	create ssl contex
+2021-06-18 20:41:39.152409	127.0.0.1 Connected
+2021-06-18 20:41:48.592927	127.0.0.1	I receive = login	len: 9
+2021-06-18 20:41:48.593931	127.0.0.1	Try login. 	Username: root1 password: toor
+2021-06-18 20:41:48.594931	127.0.0.1	Login sucesfull. 	Session_id: 426304
+2021-06-18 20:41:53.258150	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:41:53.259150	127.0.0.1	User ls file. 	 username: root1 owner file: False public file: False
+2021-06-18 20:41:53.259150	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: False public file: False
+2021-06-18 20:42:00.253185	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:42:00.254184	127.0.0.1	User ls file. 	 username: root1 owner file: True public file: True
+2021-06-18 20:42:00.254184	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: True
+2021-06-18 20:42:00.255184	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: True
+2021-06-18 20:45:16.401972	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:45:16.402973	127.0.0.1	User ls file. 	 username: root1 owner file: True public file: True
+2021-06-18 20:45:16.403974	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: Truepublic file: True
+2021-06-18 20:45:16.403974	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: True
+2021-06-18 20:47:08.524199	Start server
+2021-06-18 20:47:08.525201	Read login and pass from file
+2021-06-18 20:47:08.526201	Read dictionary from file
+2021-06-18 20:47:08.528200	create ssl contex
+2021-06-18 20:47:13.015074	127.0.0.1 Connected
+2021-06-18 20:47:18.802080	127.0.0.1	I receive = login	len: 9
+2021-06-18 20:47:18.802080	127.0.0.1	Try login. 	Username: root1 password: toor
+2021-06-18 20:47:18.803081	127.0.0.1	Login sucesfull. 	Session_id: 435382
+2021-06-18 20:47:24.178529	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:47:24.178529	127.0.0.1	User ls file. 	 username: root1 owner file: True public file: False
+2021-06-18 20:47:24.179530	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: True public file: False
+2021-06-18 20:47:31.043945	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:47:31.043945	127.0.0.1	User ls file. 	 username: root1 owner file: False public file: False
+2021-06-18 20:47:37.893159	127.0.0.1	I receive = ls	len: 3
+2021-06-18 20:47:37.893159	127.0.0.1	User ls file. 	 username: root1 owner file: True public file: True
+2021-06-18 20:47:37.894160	127.0.0.1	Server sent list of the owner files. 	 username: root1 owner file: True public file: True
+2021-06-18 20:47:37.895160	127.0.0.1	Server sent list of the public files. 	 username: root1 owner file: True public file: True

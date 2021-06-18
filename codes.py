@@ -2,6 +2,7 @@ import pickle
 
 dic_service_code = {
     # SUCCESSES
+    100: "Successfully",
     101: "Successfully Logged in",
     102: "Successfully Logged out",
     103: "Username available",

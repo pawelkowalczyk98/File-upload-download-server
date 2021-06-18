@@ -34,11 +34,11 @@ class Register:
 
 
 class Ls:
-    def __init__(self, username, private, public):
+    def __init__(self, username, own, public,files_list):
         self.username = username
-        self.private = private
+        self.own = own
         self.public = public
-
+        self.files_list = files_list
 
 class Download_file:
     def __init__(self, filename, typ, username):

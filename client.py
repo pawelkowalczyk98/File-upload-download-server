@@ -132,12 +132,6 @@ def send_services(server):
         print("File not found")
         return
 
-    # Zamiast flagi public, może po prostu dawać sid przyznany przez serw oraz sid 0
-    # czyli zapisze dla użytkownika "public" ? a z plikami jak z internetem
-    # jak raz opublikujesz to już zawsze są publiczne (bez opcji usuwania) ?
-    # w treści zadania jest tylko możliwość pobierania plików publicznych innych użytkowników
-    # a nie pobieranie plików OD innych użytkowników, więc ja bym się kłócił ;p
-    # i nie ma nic o tym że ma być możliwość od-publicznienia ich hehe
     x = input("Do you want your file to be public ? [yes/no]")
     if x == "yes":
         ispublic = True
@@ -164,6 +158,42 @@ def send_services(server):
             f.close()
 
 
+def ls_services(server):
+    print("\tLS")
+    own_files = input("View your files? [yes/no]: ")
+    if own_files == "yes":
+        own_files = True
+    else:
+        own_files = False
+
+
+    public_files = input("View public files? [yes/no]: ")
+    if public_files == "yes":
+        public_files = True
+    else:
+        public_files = False
+
+    data_send = classes.Ls(USER, own_files, public_files, "")
+    data = classes.Main("ls", 3, data_send)
+    data_string = pickle.dumps(data)
+    s.sendall(data_string + CRLF)
+
+    data_obj = receive(server)
+
+    if data_obj.typ == "service_code":
+        if data_obj.content == 100:
+            if own_files == True:
+                print("\nYour files: ")
+                data_obj2 = receive(server)
+
+            if public_files == True:
+                print("\nPublic files: ")
+                data_obj = receive(server)
+
+
+
+
+
 # ____________________________________________________________
 # Funkcje pomocnicze
 def username_check(username, server):
@@ -176,8 +206,12 @@ def username_check(username, server):
 def service_server(function_type, content):
     if function_type == "service_code":
         print(codes.dic_service_code[content])
-        # inne wiadomości jakie server może wysłać do klienta
 
+    if function_type == "ls":
+        print (*content.files_list, sep = "\n")
+
+
+    # inne wiadomości jakie server może wysłać do klienta
 
 def receive(server):  # odbiera od servera wiadomości i przekazuje do service_server
     data = b''
@@ -216,7 +250,7 @@ try:
 
         while True:
 
-            print('AVAILABLE COMMANDS: register, login, send, download, logout, help, exit\n')
+            print('AVAILABLE COMMANDS: register, login, ls, send, download, logout, help, exit\n')
             cmd = input('> ')
 
             if cmd == 'exit':
@@ -240,6 +274,9 @@ try:
 
             elif cmd == 'send':
                 send_services(s)
+
+            elif cmd == 'ls':
+                ls_services(s)
 
             else:
                 print("Incorrect command")
