@@ -1,0 +1,309 @@
+"""Client"""
+# AUTHORS: PAWEŁ KOWALCZYK & DOMINIK DUDEK
+# coding=utf-8
+import socket
+import pickle
+import classes
+import codes
+import ssl
+import os
+# from getpass import getpass
+
+# __________________________________________________________
+# GLOBAL VARIABLES
+USER = "unregistered"
+CRLF = b"\r\n\r\n"
+# Map SESSION_ID with USER at server site, for better safety
+# For 0 => unregistered
+SESSION_ID = 0
+# (Service action counter for safety - TO_DO)
+SERVICE_CNT = 0
+
+dir = os.getcwd()
+dirup = os.path.join(dir, os.pardir)
+context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=dirup + '/server/server.crt')
+context.load_cert_chain(certfile='client.crt', keyfile='client.key')
+
+
+# __________________________________________________________
+# PROTOCOL FUNCTIONS
+#   Funkcje klienta
+def login_service(server):
+    global USER, SESSION_ID
+    # Wylogowanie dla bezpieczeńswta
+    if SESSION_ID != 0:
+        logout_service(server)
+    USER = input("Username: ")
+    # Remove whitespaces
+    USER.strip()
+    if USER == '':
+        USER = "unregistered"
+        print(codes.dic_service_code[206])
+    else:
+        password = input("Password: ")
+        data_login = classes.Login(USER, password)
+        data = classes.Main("login", len(data_login), data_login)
+        data_string = pickle.dumps(data)
+        server.sendall(data_string + CRLF)
+        response = receive(server)
+        if response.typ == "service_code" and response.content == 101:
+            SESSION_ID = receive_single_obj(server)
+            print("MY SESSION ID IS: ")
+            print(SESSION_ID)
+        else:
+            print(codes.dic_service_code[207])
+
+
+def logout_service(server):
+    global USER, SESSION_ID
+    data_logout = classes.Logout(USER, SESSION_ID)
+    data = classes.Main("logout", len(data_logout), data_logout)
+    data_string = pickle.dumps(data)
+    server.sendall(data_string + CRLF)
+    USER = "unregistered"
+    SESSION_ID = 0
+    receive(server)
+
+
+def register_service(server):
+    global USER
+    USER = input("Please enter desired username (or leave empty to cancel operation): ")
+    # Remove whitespaces
+    USER.strip()
+    if USER == '':
+        USER = "unregistered"
+        print("Operation cancelled.")
+    else:
+        code = username_check(USER, server)
+        if code == 103:
+            print(codes.dic_service_code[code])
+            # pw = getpass("Enter password: ")
+            pw = input("Enter password: ")
+            # if getpass("Repeat password: ") != pw:
+            if input("Repeat password: ") != pw:
+                print(codes.dic_service_code[201])
+            else:
+                register_user_service(USER, pw, server)
+
+        elif code == 203:
+            print(codes.dic_service_code[code])
+    USER = 'unregistered'
+
+
+def register_user_service(user, pw, server):
+    data_register = classes.Register(user, pw)
+    data = classes.Main("register", len(data_register), data_register)
+    data_string = pickle.dumps(data)
+    server.sendall(data_string + CRLF)
+    receive(server)
+
+
+def exit_service(server):
+    data = classes.Main("exit", len(USER), USER)
+    data_string = pickle.dumps(data)
+    server.sendall(data_string + CRLF)
+
+
+def download_services(server): # poprawić size
+    global USER
+    filename= input("Filename: ")
+    # typ = input("Typ: ")
+    data_download = classes.Download_file(filename, USER)
+    data = classes.Main("download_file", 5, data_download)
+    data_string = pickle.dumps(data)
+    server.sendall(data_string + CRLF)
+    data_obj = receive(server)
+    if data_obj.typ == "service_code":
+        if data_obj.content == 301:
+            # plik będzie leciał normalnie bez żadnej ramki. to będzie 2 typ wiadmości
+            size = int(data_obj.length)
+            data_size = 0
+            path = "client/" + filename
+            with open(path, 'wb') as f:
+                while data_size < size:
+                    data = server.recv(1)
+                    data_size += 1
+                    f.write(data)
+                f.close()
+                print("File Saved!")
+
+
+def send_services(server):
+    global USER
+    print("SEND FILES")
+    filename = input("Filename: ")
+    # typ = input("Typ: ")
+
+    isExist = os.path.exists("client/" + filename)
+    if isExist == False:
+        print("File not found")
+        return
+
+    x = input("Do you want your file to be public ? [yes/no]")
+    if x == "yes":
+        ispublic = True
+    else:
+        ispublic = False
+
+    size = os.stat("client/" + filename).st_size
+
+    data_send = classes.Send_file(filename, USER, ispublic, size)
+    data = classes.Main("send_file", 3, data_send)
+    data_string = pickle.dumps(data)
+    server.sendall(data_string + CRLF)
+    data_obj = receive(server)
+
+    if data_obj.typ == "service_code":
+        if data_obj.content == 301:
+            with open("client/" + filename, 'rb') as f:
+                data = "a"  # żeby data nie była pusta na początku
+                while data:
+                    data = f.read(1)
+                    server.sendall((data))
+
+            print("\t\tCorrect send")
+            f.close()
+
+
+def ls_services(server):
+    global SESSION_ID, USER
+    if SESSION_ID == 0 or USER == 'unregistered':
+        print(codes.dic_service_code[205])
+    else:
+        own_files = input("View your files? [yes/no]: ")
+        if own_files == "yes":
+            own_files = True
+        else:
+            own_files = False
+
+
+        public_files = input("View public files? [yes/no]: ")
+        if public_files == "yes":
+            public_files = True
+        else:
+            public_files = False
+
+        data_send = classes.Ls(USER, own_files, public_files, "")
+        data = classes.Main("ls", 3, data_send)
+        data_string = pickle.dumps(data)
+        server.sendall(data_string + CRLF)
+
+        data_obj = receive(server)
+
+        if data_obj.typ == "service_code":
+            if data_obj.content == 100:
+                if own_files == True:
+                    print("\nYour files: ")
+                    data_obj2 = receive(server)
+
+                if public_files == True:
+                    print("\nPublic files: ")
+                    data_obj = receive(server)
+
+
+
+
+
+# ____________________________________________________________
+# Funkcje pomocnicze
+def username_check(username, server):
+    data = classes.Main("username_check", len(username), username)
+    data_string = pickle.dumps(data)
+    server.sendall(data_string + CRLF)
+    return receive_service_code(server)
+
+
+def service_server(function_type, content):
+    if function_type == "service_code":
+        print(codes.dic_service_code[content])
+
+    if function_type == "ls":
+        print (*content.files_list, sep = "\n")
+
+
+    # inne wiadomości jakie server może wysłać do klienta
+
+def receive(server):  # odbiera od servera wiadomości i przekazuje do service_server
+    data = b''
+    while b"\r\n\r\n" not in data:
+        data += server.recv(1)
+    data_obj = pickle.loads(data)  # ładowanie danych do struktur
+    service_server(data_obj.typ, data_obj.content)
+    return data_obj
+
+
+def receive_single_obj(server):  # odbiera od servera wiadomości i przekazuje do service_server
+    data = b''
+    while b"\r\n\r\n" not in data:
+        data += server.recv(1)
+    data_obj = pickle.loads(data)
+    return data_obj
+
+
+def receive_service_code(server):  # zwraca kod, jezeli service_code
+    data = b''
+    while b"\r\n\r\n" not in data:
+        data += server.recv(1)
+    data_obj = pickle.loads(data)  # ładowanie danych do struktur
+    if data_obj.typ == "service_code":
+        return data_obj.content
+
+# łączenie po ipv4
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+try:
+    sock.connect(('localhost', 1769))
+    with context.wrap_socket(sock, server_hostname='localhost') as s:
+        print(s.version())
+
+        data = b''
+        while b"\r\n\r\n" not in data:
+            data += s.recv(1)
+
+        print('Response: ' + data.decode('utf-8'))
+        s.close()
+
+except socket.error:
+        print('Error')
+
+# łaczenie po ipv6 z otrzymanym losowym portem
+if data.decode('utf-8').replace("\r\n\r\n", "") != "not exist":
+    if True:
+
+        port = int(data.decode('utf-8').replace("\r\n", ""))
+        s_v6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+        s_v6.connect(('localhost', port))
+        with context.wrap_socket(s_v6, server_hostname='localhost') as ss_v6:
+            print(ss_v6.version())
+            print('WELCOME TO FTP-CLIENT!\n')
+
+            while True:
+
+                print('\nAVAILABLE COMMANDS: register, login, ls, send, download, logout, exit\n')
+                cmd = input('> ')
+
+                if cmd == 'exit':
+                    exit_service(ss_v6)
+                    break
+
+                elif cmd == 'login':
+                    login_service(ss_v6)
+
+                elif cmd == 'logout':
+                    logout_service(ss_v6)
+
+                elif cmd == 'register':
+                    register_service(ss_v6)
+
+                elif cmd == 'download':
+                    download_services(ss_v6)
+
+                elif cmd == 'send':
+                    send_services(ss_v6)
+
+                elif cmd == 'ls':
+                    ls_services(ss_v6)
+
+                else:
+                    print("Incorrect command")
+
+            ss_v6.close()
