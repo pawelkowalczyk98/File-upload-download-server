@@ -42,7 +42,7 @@ def login_service(server):
         data_login = classes.Login(USER, password)
         data = classes.Main("login", len(data_login), data_login)
         data_string = pickle.dumps(data)
-        s.sendall(data_string + CRLF)
+        server.sendall(data_string + CRLF)
         response = receive(server)
         if response.typ == "service_code" and response.content == 101:
             SESSION_ID = receive_single_obj(server)
@@ -57,7 +57,7 @@ def logout_service(server):
     data_logout = classes.Logout(USER, SESSION_ID)
     data = classes.Main("logout", len(data_logout), data_logout)
     data_string = pickle.dumps(data)
-    s.sendall(data_string + CRLF)
+    server.sendall(data_string + CRLF)
     USER = "public"
     SESSION_ID = 0
     receive(server)
@@ -90,14 +90,14 @@ def register_user_service(user, pw, server):
     data_register = classes.Register(user, pw)
     data = classes.Main("register", len(data_register), data_register)
     data_string = pickle.dumps(data)
-    s.sendall(data_string + CRLF)
+    server.sendall(data_string + CRLF)
     receive(server)
 
 
-def exit_service():
+def exit_service(server):
     data = classes.Main("exit", len(USER), USER)
     data_string = pickle.dumps(data)
-    s.sendall(data_string + CRLF)
+    server.sendall(data_string + CRLF)
 
 
 def download_services(server): # poprawić size
@@ -107,7 +107,7 @@ def download_services(server): # poprawić size
     data_download = classes.Download_file(filename, typ, USER)
     data = classes.Main("download_file", 5, data_download)
     data_string = pickle.dumps(data)
-    s.sendall(data_string + CRLF)
+    server.sendall(data_string + CRLF)
     data_obj = receive(server)
     if data_obj.typ == "service_code":
         if data_obj.content == 301:
@@ -146,7 +146,7 @@ def send_services(server):
     data_send = classes.Send_file(filename, typ, USER, ispublic, size)
     data = classes.Main("send_file", 3, data_send)
     data_string = pickle.dumps(data)
-    s.sendall(data_string + CRLF)
+    server.sendall(data_string + CRLF)
     data_obj = receive(server)
 
     if data_obj.typ == "service_code":
@@ -179,7 +179,7 @@ def ls_services(server):
     data_send = classes.Ls(USER, own_files, public_files, "")
     data = classes.Main("ls", 3, data_send)
     data_string = pickle.dumps(data)
-    s.sendall(data_string + CRLF)
+    server.sendall(data_string + CRLF)
 
     data_obj = receive(server)
 
@@ -202,7 +202,7 @@ def ls_services(server):
 def username_check(username, server):
     data = classes.Main("username_check", len(username), username)
     data_string = pickle.dumps(data)
-    s.sendall(data_string + CRLF)
+    server.sendall(data_string + CRLF)
     return receive_service_code(server)
 
 
@@ -243,52 +243,69 @@ def receive_service_code(server):  # zwraca kod, jezeli service_code
     if data_obj.typ == "service_code":
         return data_obj.content
 
-
-if socket.has_dualstack_ipv6():
-    sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
-else:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+# łączenie po ipv4
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
     sock.connect(('localhost', 1769))
     with context.wrap_socket(sock, server_hostname='localhost') as s:
         print(s.version())
-        print('WELCOME TO FTP-CLIENT!\n')
 
-        while True:
+        data = b''
+        while b"\r\n\r\n" not in data:
+            data += s.recv(1)
+            #print(data)
 
-            print('AVAILABLE COMMANDS: register, login, ls, send, download, logout, help, exit\n')
-            cmd = input('> ')
-
-            if cmd == 'exit':
-                exit_service()
-                break
-
-            elif cmd == 'help':
-                print('*Insert function description here*')
-
-            elif cmd == 'login':
-                login_service(s)
-
-            elif cmd == 'logout':
-                logout_service(s)
-
-            elif cmd == 'register':
-                register_service(s)
-
-            elif cmd == 'download':
-                download_services(s)
-
-            elif cmd == 'send':
-                send_services(s)
-
-            elif cmd == 'ls':
-                ls_services(s)
-
-            else:
-                print("Incorrect command")
-
+        print('Response: ' + data.decode('utf-8'))
         s.close()
 
 except socket.error:
-    print('Error')
+        print('Error')
+
+# łaczenie po ipv6 z otrzymanym losowym portem
+if data.decode('utf-8').replace("\r\n\r\n", "") != "not exist":
+    if True:
+
+        port = int(data.decode('utf-8').replace("\r\n", ""))
+        s_v6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+        s_v6.connect(('localhost', port))
+        with context.wrap_socket(s_v6, server_hostname='localhost') as ss_v6:
+            print(ss_v6.version())
+            print('WELCOME TO FTP-CLIENT!\n')
+
+            while True:
+
+                print('AVAILABLE COMMANDS: register, login, ls, send, download, logout, help, exit\n')
+                cmd = input('> ')
+
+                if cmd == 'exit':
+                    exit_service(ss_v6)
+                    break
+
+                elif cmd == 'help':
+                    print('*Insert function description here*')
+
+                elif cmd == 'login':
+                    login_service(ss_v6)
+
+                elif cmd == 'logout':
+                    logout_service(ss_v6)
+
+                elif cmd == 'register':
+                    register_service(ss_v6)
+
+                elif cmd == 'download':
+                    download_services(ss_v6)
+
+                elif cmd == 'send':
+                    send_services(ss_v6)
+
+                elif cmd == 'ls':
+                    ls_services(ss_v6)
+
+                else:
+                    print("Incorrect command")
+
+            ss_v6.close()
+
+    #except socket.error:
+    #    print('Error v6')

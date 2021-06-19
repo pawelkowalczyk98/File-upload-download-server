@@ -46,22 +46,41 @@ def create_ssl_context():
 
 
 def one_client(cl, address):
-    while True:
-        data = b''
-        while b"\r\n\r\n" not in data:
-            data += cl.recv(1)
-            # print(data)
+    #losowanie portu i wysyłanie klientowi
 
-        data_obj = pickle.loads(data)  # ładowanie danych do struktur
-        print(f'I receive = {data_obj.typ} {data_obj.length}')  # wypisanie
-        log_str = "\tI receive = " + str(data_obj.typ) +"\tlen: " + str(data_obj.length)
-        log( str(address) + log_str)
-        if data_obj.typ == "exit":
-            print("Client disconnected from server.")
-            cl.close()
-            log(str(address) + "close connection")
-            break
-        service_client(data_obj.typ, data_obj.content, cl, address)
+    port = random.randint(1200, 65000)
+    print(port)
+    #cl.sendall((str(port) + "\r\n\r\n"))
+    cl.sendall((str(port) + "\r\n\r\n").encode())
+    cl.close()
+    s.close()
+
+    # łaczenie z klientem po ipv6 na losowym porcie
+    s_v6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM, 0)
+    s_v6.bind(("localhost", int(port)))
+    s_v6.listen(5)
+
+    with context.wrap_socket(s_v6, server_side=True) as ss_v6:
+
+        cl_v6, addr_v6 = ss_v6.accept()
+        print("Connected ipv6: " + addr_v6[0])
+
+        while True:
+            data = b''
+            while b"\r\n\r\n" not in data:
+                data += cl_v6.recv(1)
+                #print(data)
+
+            data_obj = pickle.loads(data)  # ładowanie danych do struktur
+            print(f'I receive = {data_obj.typ} {data_obj.length}')  # wypisanie
+            log_str = "\tI receive = " + str(data_obj.typ) +"\tlen: " + str(data_obj.length)
+            log( str(addr_v6) + log_str)
+            if data_obj.typ == "exit":
+                print("Client disconnected from server.")
+                cl.close()
+                log(str(addr_v6) + "close connection")
+                break
+            service_client(data_obj.typ, data_obj.content, cl_v6, addr_v6)
 
 
 def save_dic(): # zapisuje globalne słowniki do plików
@@ -127,18 +146,18 @@ def service_client(function_type, content, client, address):
 
     if function_type == "login":
         print("\tlogin")
-        login_service(content.username, content.password, address)
+        login_service(content.username, content.password, address, client)
 
     if function_type == 'logout':
         print("\tlogout")
-        logout_service(content.username, content.sid, address)
+        logout_service(content.username, content.sid, address, client)
 
     if function_type == 'username_check':
         print("\tusername checking..")
-        username_check_service(content, address)
+        username_check_service(content, address, client)
 
     if function_type == "register":
-        user_registration_service(content.username, content.password, address)
+        user_registration_service(content.username, content.password, address, client)
 
     if function_type == "download_file":
         print("\t download File")
@@ -160,7 +179,7 @@ TU zdefiniowane są funkcionalności serwera
 
 
 # Obsługa logowania
-def login_service(username, password, address):
+def login_service(username, password, address, client):
     print("\t\tTu odbywa się logowanie do serwera")
     print("\t\tUsername: " + username)
     print("\t\tPassword: " + password)
@@ -205,7 +224,7 @@ def login_service(username, password, address):
     client.sendall(response_object + CRLF)
 
 
-def logout_service(username, sid, address):
+def logout_service(username, sid, address, client):
     print("\t\tTu odbywa się wylogowywanie z serwera")
     print("\t\tUsername: " + username)
     sid = int(sid)
@@ -231,7 +250,7 @@ def logout_service(username, sid, address):
     client.sendall(response_object + CRLF)
 
 
-def username_check_service(username,address):
+def username_check_service(username,address, client):
     print("\t\tTu odbywa się rejestracja użytkownika")
     log(str(address) + "\tCheck available username: " + username )
     if username in set_user_login:
@@ -245,7 +264,7 @@ def username_check_service(username,address):
     client.sendall(response_object + CRLF)
 
 
-def user_registration_service(username, password, address):
+def user_registration_service(username, password, address, client):
     set_user_login.add(username)
     dic_user_pwd[username] = password
     response_class = classes.Main("service_code", CODE_LEN, 104)
@@ -358,34 +377,18 @@ def ls_files(username, own, public, client, address):
 # __________________________MAIN_LOOP____________________________
 log("Start server")
 read_dic()
+
 context = create_ssl_context()
-# Raczej źle, bo działa tylko na ipv6
-if socket.has_dualstack_ipv6():
-    with socket.socket(socket.AF_INET6, socket.SOCK_STREAM, 0) as sock:
-        sock.bind(("localhost", 1769))
-        sock.listen(5)
-        with context.wrap_socket(sock, server_side=True) as s:
-            while True:
-                try:
-                    client, address = s.accept()
-                    print("Connected: " + address[0])
-                    log(str(address[0]) + " Connected" )
-                    start_new_thread(one_client, (client, address[0],))
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
+    sock.bind(("localhost", 1769))
+    sock.listen(5)
+    with context.wrap_socket(sock, server_side=True) as s:
+        while True:
+            try:
+                client, address = s.accept()
+                print("Connected: " + address[0])
+                log(str(address[0]) + " Connected" )
+                start_new_thread(one_client, (client,address[0],))
 
-                except socket.error:
-                    s.close()
-else:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
-        sock.bind(("localhost", 1769))
-        sock.listen(5)
-        with context.wrap_socket(sock, server_side=True) as s:
-            while True:
-                try:
-                    client, address = s.accept()
-                    print("Connected: " + address[0])
-                    log(str(address[0]) + " Connected")
-                    start_new_thread(one_client, (client, address[0],))
-
-                except socket.error:
-                    s.close()
-# ______________________________________
+            except socket.error:
+                s.close()
