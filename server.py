@@ -23,15 +23,18 @@ dic_user_session = {
     # (session_id == 0) ==> public user, no account
     0: "public"
 }
+dic_session_user = {
+    "public": 0
+}
 dic_file_owner = {}
 dic_file_isPublic = {}
 
-# rand liczby/portu ktora przypiszemy w mapie do usera dla bezpieczenstwa
 
 def log(content):
     time = datetime.datetime.now()
     with open("log/log.txt", "a") as f:
         f.write(str(time) +"\t" + str(content) + "\n")
+
 
 def create_ssl_context():
     cont = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
@@ -60,6 +63,7 @@ def one_client(cl, address):
             break
         service_client(data_obj.typ, data_obj.content, cl, address)
 
+
 def save_dic(): # zapisuje globalne słowniki do plików
     with open('set_user_login.txt', 'wb') as f:  # Zapis loginów
         pickle.dump(set_user_login, f)
@@ -75,6 +79,7 @@ def save_dic(): # zapisuje globalne słowniki do plików
 
     log("Save directory to file")
 
+
 def add_user(username, password):
     set_user_login.add(username)
     dic_user_pwd[username] = password
@@ -82,9 +87,7 @@ def add_user(username, password):
     save_dic()
 
 
-
 # serwer za przy każdym uruchomieniu wczytuje loginy i hasła
-
 def read_dic():
     global set_user_login
     global dic_user_pwd
@@ -115,9 +118,9 @@ def read_dic():
     print(dic_file_isPublic)
     log("Read dictionary from file")
 
+
 # ___________________________________________________________
 # Uruchamianie odpowiednich funkcji
-
 def service_client(function_type, content, client, address):
     """Funkcja na podstawie typu
     odpala odpowiednią funkcję"""
@@ -163,21 +166,33 @@ def login_service(username, password, address):
     print("\t\tPassword: " + password)
     log(str(address) + "\tTry login. \tUsername: " + username + " password: " + password)
     # Czy login istnieje?
-    if username in set_user_login:
+    if username == 'public':
+        print("\t\tNie można zalogować na konto 'public'!")
+        response_class = classes.Main("service_code", CODE_LEN, 202)
+        log(str(address) + "\tCannot login on 'public' user.")
+    elif username in set_user_login:
         # Czy hasło poprawne?
         if password == dic_user_pwd[username]:
-            # Są 2 opcje, które mogę dodać, jeżeli user już jest zalogowany
-            # 1. Nie pozwalam na nowe zalogowanie usera, dopóki się nie wyloguje
-            # 2. Dodaję extra dic (odwrotność user_sessions), i wywalam poprzednika, żeby zalogować nowego
-            set_logged_in.add(username)  # Dodanie do listy zalogowanych
-            session_id = random.randint(1, 999999)
-            dic_user_session[session_id] = username
-            print("\t\tZalogowano: " + username)
-            response_class = classes.Main("service_code", CODE_LEN, 101)
-            response_object = pickle.dumps(response_class)
-            client.sendall(response_object + CRLF)
-            response_class = session_id
-            log(str(address) + "\tLogin sucesfull. \tSession_id: " + str(session_id))
+            if username in set_logged_in:
+                print("\t\tJuż zalogowany: " + username)
+                response_class = classes.Main("service_code", CODE_LEN, 101)
+                response_object = pickle.dumps(response_class)
+                client.sendall(response_object + CRLF)
+                response_class = dic_session_user[username]
+                log(str(address) + "\tLogin sucesfull. \tSession_id: " + str(dic_session_user[username]))
+            else:
+                set_logged_in.add(username)  # Dodanie do listy zalogowanych
+                session_id = random.randint(1, 999999)
+                while session_id in dic_user_session:
+                    session_id = random.randint(1, 999999)
+                dic_user_session[session_id] = username
+                dic_session_user[username] = session_id
+                print("\t\tZalogowano: " + username)
+                response_class = classes.Main("service_code", CODE_LEN, 101)
+                response_object = pickle.dumps(response_class)
+                client.sendall(response_object + CRLF)
+                response_class = session_id
+                log(str(address) + "\tLogin sucesfull. \tSession_id: " + str(session_id))
         else:
             print("\t\tBłędne hasło dla: " + username)
             response_class = classes.Main("service_code", CODE_LEN, 201)
@@ -199,6 +214,7 @@ def logout_service(username, sid, address):
         if dic_user_session[sid] == username:
             set_logged_in.remove(username)
             dic_user_session.pop(sid)
+            dic_session_user.pop(username)
 
             print("\t\tWylogowano: " + username)
             response_class = classes.Main("service_code", CODE_LEN, 102)
@@ -299,7 +315,6 @@ def send_file(filename, typ, username, ispublic, size, client, address):
     log(str(address) + "\tSaved file correctly \tusername: " + username + " filename: " + filename + " ispublic: " + ispublic)
 
 
-
 def ls_files(username, own, public, client, address):
     print("\t\t ls files ")
     log(str(address) + "\tUser ls file. \t username: " + username + " owner file: " + str(own) + " public file: " + str(public))
@@ -309,7 +324,7 @@ def ls_files(username, own, public, client, address):
         client.sendall(response_object + CRLF)
         result_list = []
 
-        if own == True:
+        if own:
             result_list = []
             for file in dic_file_owner:
                 if dic_file_owner[file] == username:
@@ -321,11 +336,10 @@ def ls_files(username, own, public, client, address):
             client.sendall(response_object + CRLF)
             log(str(address) + "\tServer sent list of the owner files. \t username: " + username + " owner file: " + str(own) +  " public file: " + str(public))
 
-
-        if public == True:
+        if public:
             result_list = []
             for file in dic_file_isPublic:
-                if dic_file_isPublic[file] == True:
+                if dic_file_isPublic[file]:
                     result_list.append(file)
 
             response = classes.Ls(username, own, public, result_list)
@@ -334,28 +348,44 @@ def ls_files(username, own, public, client, address):
             client.sendall(response_object + CRLF)
             log(str(address) + "\tServer sent list of the public files. \t username: " + username + " owner file: " + str(own) + " public file: " + str(public))
 
-
     else:
         response_class = classes.Main("service_code", CODE_LEN, 205)
         response_object = pickle.dumps(response_class)
         client.sendall(response_object + CRLF)
         log(str(address) + "\tUser not logged in, \t username: " + username + " owner file: " + str(own) + " public file: " + str(public))
 
+
 # __________________________MAIN_LOOP____________________________
 log("Start server")
 read_dic()
 context = create_ssl_context()
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
-    sock.bind(("localhost", 1769))
-    sock.listen(5)
-    with context.wrap_socket(sock, server_side=True) as s:
-        while True:
-            try:
-                client, address = s.accept()
-                print("Connected: " + address[0])
-                log(str(address[0]) + " Connected" )
-                start_new_thread(one_client, (client,address[0],))
+# Raczej źle, bo działa tylko na ipv6
+if socket.has_dualstack_ipv6():
+    with socket.socket(socket.AF_INET6, socket.SOCK_STREAM, 0) as sock:
+        sock.bind(("localhost", 1769))
+        sock.listen(5)
+        with context.wrap_socket(sock, server_side=True) as s:
+            while True:
+                try:
+                    client, address = s.accept()
+                    print("Connected: " + address[0])
+                    log(str(address[0]) + " Connected" )
+                    start_new_thread(one_client, (client, address[0],))
 
-            except socket.error:
-                s.close()
+                except socket.error:
+                    s.close()
+else:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
+        sock.bind(("localhost", 1769))
+        sock.listen(5)
+        with context.wrap_socket(sock, server_side=True) as s:
+            while True:
+                try:
+                    client, address = s.accept()
+                    print("Connected: " + address[0])
+                    log(str(address[0]) + " Connected")
+                    start_new_thread(one_client, (client, address[0],))
+
+                except socket.error:
+                    s.close()
 # ______________________________________

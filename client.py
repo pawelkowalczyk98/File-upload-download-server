@@ -28,6 +28,9 @@ context.load_cert_chain(certfile='client.crt', keyfile='client.key')
 #   Funkcje klienta
 def login_service(server):
     global USER, SESSION_ID
+    # Wylogowanie dla bezpieczeńswta
+    if SESSION_ID != 0:
+        logout_service(server)
     USER = input("Username: ")
     # Remove whitespaces
     USER.strip()
@@ -76,11 +79,11 @@ def register_service(server):
             if getpass("Repeat password: ") != pw:
                 print(codes.dic_service_code[201])
             else:
-                print("Encoded password: " + pw)
                 register_user_service(USER, pw, server)
 
         elif code == 203:
             print(codes.dic_service_code[code])
+    USER = 'public'
 
 
 def register_user_service(user, pw, server):
@@ -241,7 +244,11 @@ def receive_service_code(server):  # zwraca kod, jezeli service_code
         return data_obj.content
 
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+if socket.has_dualstack_ipv6():
+    sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+else:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
 try:
     sock.connect(('localhost', 1769))
     with context.wrap_socket(sock, server_hostname='localhost') as s:
@@ -254,7 +261,7 @@ try:
             cmd = input('> ')
 
             if cmd == 'exit':
-                exit_service(s)
+                exit_service()
                 break
 
             elif cmd == 'help':
